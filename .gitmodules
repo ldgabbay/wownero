@@ -15,4 +15,7 @@
 	path = external/randomwow
 	url = https://github.com/mrcyjanek/randomwow
         branch = 1.2.1-wow
-
+[submodule "external/bc-ur"]
+	path = external/bc-ur
+	url = https://github.com/MrCyjaneK/bc-ur
+	branch = misc

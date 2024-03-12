@@ -96,7 +96,8 @@ enable_language(C ASM)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
+add_definitions(-D_LIBCPP_ENABLE_CXX17_REMOVED_FEATURES) # boost: no template named 'unary_function' in namespace 'std'; did you mean '__unary_function'?
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -365,6 +366,7 @@ if(NOT MANUAL_SUBMODULES)
     endfunction ()
     
     message(STATUS "Checking submodules")
+    #check_submodule(external/bc-ur)
     check_submodule(external/miniupnp)
     check_submodule(external/rapidjson)
     check_submodule(external/trezor-common)

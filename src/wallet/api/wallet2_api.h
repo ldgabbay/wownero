@@ -91,6 +91,7 @@ struct PendingTransaction
     virtual std::string errorString() const = 0;
     // commit transaction or save to file if filename is provided.
     virtual bool commit(const std::string &filename = "", bool overwrite = false) = 0;
+    virtual std::string commitUR(int max_fragment_length = 130) = 0;
     virtual uint64_t amount() const = 0;
     virtual uint64_t dust() const = 0;
     virtual uint64_t fee() const = 0;
@@ -160,7 +161,8 @@ struct UnsignedTransaction
     * @param signedFileName
     * return - true on success
     */
-    virtual bool sign(const std::string &signedFileName) = 0;
+   virtual bool sign(const std::string &signedFileName) = 0;
+   virtual std::string signUR(int max_fragment_length = 130) = 0;
 };
 
 /**
@@ -626,6 +628,7 @@ struct Wallet
             result += unlockedBalance(i);
         return result;
     }
+    virtual uint64_t viewOnlyBalance(uint32_t accountIndex, const std::vector<std::string> &key_images = {}) const = 0;
 
    /**
     * @brief watchOnly - checks if wallet is watch only
@@ -884,13 +887,15 @@ struct Wallet
     *                          after object returned
     */
     virtual UnsignedTransaction * loadUnsignedTx(const std::string &unsigned_filename) = 0;
-    
-   /*!
+    virtual UnsignedTransaction * loadUnsignedTxUR(const std::string &input) = 0;
+
+    /*!
     * \brief submitTransaction - submits transaction in signed tx file
     * \return                  - true on success
     */
     virtual bool submitTransaction(const std::string &fileName) = 0;
-    
+    virtual bool submitTransactionUR(const std::string &input) = 0;
+
 
     /*!
      * \brief disposeTransaction - destroys transaction object
@@ -906,6 +911,8 @@ struct Wallet
     virtual uint64_t estimateTransactionFee(const std::vector<std::pair<std::string, uint64_t>> &destinations,
                                             PendingTransaction::Priority priority) const = 0;
 
+    virtual bool hasUnknownKeyImages() const = 0;
+
    /*!
     * \brief exportKeyImages - exports key images to file
     * \param filename
@@ -913,20 +920,22 @@ struct Wallet
     * \return                  - true on success
     */
     virtual bool exportKeyImages(const std::string &filename, bool all = false) = 0;
-   
+    virtual std::string exportKeyImagesUR(size_t max_fragment_length, bool all = false) = 0;
    /*!
     * \brief importKeyImages - imports key images from file
     * \param filename
     * \return                  - true on success
     */
     virtual bool importKeyImages(const std::string &filename) = 0;
+    virtual bool importKeyImagesUR(const std::string &input) = 0;
 
     /*!
-     * \brief importOutputs - exports outputs to file
+     * \brief exportOutputs - exports outputs to file
      * \param filename
      * \return                  - true on success
      */
     virtual bool exportOutputs(const std::string &filename, bool all = false) = 0;
+    virtual std::string exportOutputsUR(size_t max_fragment_length, bool all = false) = 0;
 
     /*!
      * \brief importOutputs - imports outputs from file
@@ -934,6 +943,7 @@ struct Wallet
      * \return                  - true on success
      */
     virtual bool importOutputs(const std::string &filename) = 0;
+    virtual bool importOutputsUR(const std::string &filename) = 0;
 
     /*!
      * \brief scanTransactions - scan a list of transaction ids, this operation may reveal the txids to the remote node and affect your privacy

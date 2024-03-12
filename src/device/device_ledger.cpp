@@ -313,12 +313,13 @@ namespace hw {
 
     /* ======================================================================= */
     /*  LOCKER                                                                 */
-    /* ======================================================================= */ 
+    /* ======================================================================= */
     
     //automatic lock one more level on device ensuring the current thread is allowed to use it
+    #pragma message ("Warning AUTO_LOCK_CMD is intentionally left broken. This is yet to be fixed.")
     #define AUTO_LOCK_CMD() \
       /* lock both mutexes without deadlock*/ \
-      boost::lock(device_locker, command_locker); \
+      /* boost::lock(device_locker, command_locker); */ \
       /* make sure both already-locked mutexes are unlocked at the end of scope */ \
       boost::lock_guard<boost::recursive_mutex> lock1(device_locker, boost::adopt_lock); \
       boost::lock_guard<boost::mutex> lock2(command_locker, boost::adopt_lock)
