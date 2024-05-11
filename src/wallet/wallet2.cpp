@@ -1195,6 +1195,7 @@ wallet2::wallet2(network_type nettype, uint64_t kdf_rounds, bool unattended, std
   m_upper_transaction_weight_limit(0),
   m_run(true),
   m_callback(0),
+  m_refreshEnabled(false),
   m_trusted_daemon(false),
   m_nettype(nettype),
   m_multisig_rounds_passed(0),
@@ -1413,6 +1414,14 @@ bool wallet2::set_daemon(std::string daemon_address, boost::optional<epee::net_u
     default_daemon_address = address;
   }
   return ret;
+}
+//----------------------------------------------------------------------------------------------------
+bool wallet2::get_refresh_enabled() {
+    return m_refreshEnabled;
+}
+//----------------------------------------------------------------------------------------------------
+void wallet2::set_refresh_enabled(bool val) {
+    m_refreshEnabled = val;
 }
 //----------------------------------------------------------------------------------------------------
 bool wallet2::set_proxy(const std::string &address)
@@ -4151,8 +4160,9 @@ void wallet2::refresh(bool trusted_daemon, uint64_t start_height, uint64_t & blo
   // infer when we get an incoming output
 
   bool first = true, last = false;
-  while(m_run.load(std::memory_order_relaxed) && blocks_fetched < max_blocks)
+  while(m_run.load(std::memory_order_relaxed) && blocks_fetched < max_blocks && m_refreshEnabled)
   {
+    LOG_ERROR("SYNCING");
     uint64_t next_blocks_start_height;
     std::vector<cryptonote::block_complete_entry> next_blocks;
     std::vector<parsed_block> next_parsed_blocks;

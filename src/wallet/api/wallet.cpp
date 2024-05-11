@@ -55,8 +55,8 @@ using namespace cryptonote;
 #define MONERO_DEFAULT_LOG_CATEGORY "WalletAPI"
 
 #define LOCK_REFRESH() \
-    bool refresh_enabled = m_refreshEnabled; \
-    m_refreshEnabled = false; \
+    bool refresh_enabled = m_wallet->get_refresh_enabled(); \
+    m_wallet->set_refresh_enabled(false); \
     m_wallet->stop(); \
     m_refreshCV.notify_one(); \
     boost::mutex::scoped_lock lock(m_refreshMutex); \
@@ -466,7 +466,7 @@ WalletImpl::WalletImpl(NetworkType nettype, uint64_t kdf_rounds)
     m_wallet2Callback.reset(new Wallet2CallbackImpl(this));
     m_wallet->callback(m_wallet2Callback.get());
     m_refreshThreadDone = false;
-    m_refreshEnabled = false;
+    m_wallet->set_refresh_enabled(false);
     m_addressBook.reset(new AddressBookImpl(this));
     m_subaddress.reset(new SubaddressImpl(this));
     m_subaddressAccount.reset(new SubaddressAccountImpl(this));
@@ -962,6 +962,7 @@ void WalletImpl::stop()
 bool WalletImpl::store(const std::string &path)
 {
     clearStatus();
+    LOCK_REFRESH();
     try {
         if (path.empty()) {
             m_wallet->store();
@@ -2449,10 +2450,10 @@ void WalletImpl::refreshThreadFunc()
         }
 
         LOG_PRINT_L3(__FUNCTION__ << ": refresh lock acquired...");
-        LOG_PRINT_L3(__FUNCTION__ << ": m_refreshEnabled: " << m_refreshEnabled);
+        LOG_PRINT_L3(__FUNCTION__ << ": m_refreshEnabled: " << m_wallet->get_refresh_enabled());
         LOG_PRINT_L3(__FUNCTION__ << ": m_status: " << status());
         LOG_PRINT_L3(__FUNCTION__ << ": m_refreshShouldRescan: " << m_refreshShouldRescan);
-        if (m_refreshEnabled) {
+        if (m_wallet->get_refresh_enabled()) {
             LOG_PRINT_L3(__FUNCTION__ << ": refreshing...");
             doRefresh();
         }
@@ -2486,7 +2487,7 @@ void WalletImpl::doRefresh()
     } catch (const std::exception &e) {
         setStatusError(e.what());
         break;
-    }while(!rescan && (rescan=m_refreshShouldRescan.exchange(false))); // repeat if not rescanned and rescan was requested
+    }while(m_wallet->get_refresh_enabled() && !rescan && (rescan=m_refreshShouldRescan.exchange(false))); // repeat if not rescanned and rescan was requested
 
     if (m_wallet2Callback->getListener()) {
         m_wallet2Callback->getListener()->refreshed();
@@ -2496,9 +2497,9 @@ void WalletImpl::doRefresh()
 
 void WalletImpl::startRefresh()
 {
-    if (!m_refreshEnabled) {
+    if (!m_wallet->get_refresh_enabled()) {
         LOG_PRINT_L2(__FUNCTION__ << ": refresh started/resumed...");
-        m_refreshEnabled = true;
+        m_wallet->set_refresh_enabled(true);
         m_refreshCV.notify_one();
     }
 }
@@ -2508,7 +2509,7 @@ void WalletImpl::startRefresh()
 void WalletImpl::stopRefresh()
 {
     if (!m_refreshThreadDone) {
-        m_refreshEnabled = false;
+        m_wallet->set_refresh_enabled(false);
         m_refreshThreadDone = true;
         m_refreshCV.notify_one();
         m_refreshThread.join();
@@ -2519,9 +2520,7 @@ void WalletImpl::pauseRefresh()
 {
     LOG_PRINT_L2(__FUNCTION__ << ": refresh paused...");
     // TODO synchronize access
-    if (!m_refreshThreadDone) {
-        m_refreshEnabled = false;
-    }
+    m_wallet->set_refresh_enabled(false);
 }
 
 

@@ -1078,6 +1078,8 @@ private:
       epee::net_utils::ssl_options_t ssl_options = epee::net_utils::ssl_support_t::e_ssl_support_autodetect,
       const std::string &proxy = "");
     bool set_proxy(const std::string &address);
+    bool get_refresh_enabled();
+    void set_refresh_enabled(bool val);
 
     void stop() { m_run.store(false, std::memory_order_relaxed); m_message_store.stop(); }
 
@@ -1996,6 +1998,7 @@ private:
 
     boost::recursive_mutex m_daemon_rpc_mutex;
 
+    bool m_refreshEnabled;
     bool m_trusted_daemon;
     i_wallet2_callback* m_callback;
     hw::device::device_type m_key_device_type;
