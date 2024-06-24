@@ -826,12 +826,19 @@ bool WalletImpl::close(bool store)
 
 std::string WalletImpl::seed(const std::string& seed_offset) const
 {
-    if (checkBackgroundSync("cannot get seed"))
+    if (checkBackgroundSync("cannot get seed")) {
+        setStatusError("cannot get seed");
         return std::string();
-    epee::wipeable_string seed;
-    if (m_wallet)
-        m_wallet->get_seed(seed, seed_offset);
-    return std::string(seed.data(), seed.size()); // TODO
+    }
+    try {
+        epee::wipeable_string seed;
+        if (m_wallet)
+            m_wallet->get_seed(seed, seed_offset);
+        return std::string(seed.data(), seed.size()); // TODO
+    } catch (const std::exception &e) {
+        setStatusError(e.what());
+        return std::string();
+    }
 }
 
 std::string WalletImpl::getSeedLanguage() const
