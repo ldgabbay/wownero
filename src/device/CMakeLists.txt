@@ -29,10 +29,11 @@
 set(device_sources
   device.cpp
   device_default.cpp
+  device_io_dummy.cpp
   log.cpp
   )
 
-if(HIDAPI_FOUND)
+if(HIDAPI_FOUND OR HIDAPI_DUMMY)
   set(device_sources 
     ${device_sources} 
     device_ledger.cpp
@@ -45,10 +46,11 @@ set(device_headers
   device_io.hpp
   device_default.hpp
   device_cold.hpp
+  device_io_dummy.hpp
   log.hpp
  )
 
-if(HIDAPI_FOUND)
+if(HIDAPI_FOUND OR HIDAPI_DUMMY)
   set(device_headers 
     ${device_headers} 
     device_ledger.hpp

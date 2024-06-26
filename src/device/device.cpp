@@ -29,7 +29,7 @@
 
 #include "device.hpp"
 #include "device_default.hpp"
-#ifdef WITH_DEVICE_LEDGER
+#if defined(WITH_DEVICE_LEDGER) || defined(HIDAPI_DUMMY)
 #include "device_ledger.hpp"
 #endif
 #include "misc_log_ex.h"
@@ -57,7 +57,7 @@ namespace hw {
 
     device_registry::device_registry(){
         hw::core::register_all(registry);
-        #ifdef WITH_DEVICE_LEDGER
+        #if defined(WITH_DEVICE_LEDGER) || defined(HIDAPI_DUMMY)
         hw::ledger::register_all(registry);
         #endif
         atexit(clear_device_registry);
@@ -83,11 +83,13 @@ namespace hw {
 
         auto device = registry.find(device_descriptor_lookup);
         if (device == registry.end()) {
-            MERROR("Device not found in registry: '" << device_descriptor << "'. Known devices: ");
+            std::stringstream ss("Device not found in registry: '" + device_descriptor + "'. Known devices: ");
+            MERROR("Device not found in registry: '" << device_descriptor << "'. Known devices: \n");
             for( const auto& sm_pair : registry ) {
+                ss << "\n- " + sm_pair.first;
                 MERROR(" - " << sm_pair.first);
             }
-            throw std::runtime_error("device not found: " + device_descriptor);
+            throw std::runtime_error("device not found: " + device_descriptor + "\n" + ss.str());
         }
         return *device->second;
     }

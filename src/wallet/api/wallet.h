@@ -301,6 +301,24 @@ private:
     // cache connection status to avoid unnecessary RPC calls
     mutable std::atomic<bool>   m_is_connected;
     boost::optional<epee::net_utils::http::login> m_daemon_login{};
+
+    bool getStateIsConnected();
+
+    unsigned char *getSendToDevice();
+
+    size_t getSendToDeviceLength();
+
+    unsigned char *getReceivedFromDevice();
+
+    size_t getReceivedFromDeviceLength();
+
+    bool getWaitsForDeviceSend();
+
+    bool getWaitsForDeviceReceive();
+
+    void setDeviceReceivedData(unsigned char *data, size_t len);
+
+    void setDeviceSendData(unsigned char *data, size_t len);
 };
 
 

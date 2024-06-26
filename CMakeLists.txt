@@ -693,15 +693,20 @@ include_directories(${LMDB_INCLUDE})
 include_directories(${LIBUNWIND_INCLUDE})
 link_directories(${LIBUNWIND_LIBRARY_DIRS})
 
-# Final setup for hid
-if (HIDAPI_FOUND) 
-  message(STATUS "Using HIDAPI include dir at ${HIDAPI_INCLUDE_DIR}")
-  add_definitions(-DHAVE_HIDAPI)
-  include_directories(${HIDAPI_INCLUDE_DIR})
-  link_directories(${LIBHIDAPI_LIBRARY_DIRS})
+if (HIDAPI_DUMMY)
+  add_definitions(-DHIDAPI_DUMMY)
 else()
-  message(STATUS "Could not find HIDAPI")
+  # Final setup for hid
+  if (HIDAPI_FOUND)
+    message(STATUS "Using HIDAPI include dir at ${HIDAPI_INCLUDE_DIR}")
+    add_definitions(-DHAVE_HIDAPI)
+    include_directories(${HIDAPI_INCLUDE_DIR})
+    link_directories(${LIBHIDAPI_LIBRARY_DIRS})
+  else()
+    message(STATUS "Could not find HIDAPI")
+  endif()
 endif()
+
 
 # Trezor support check
 include(CheckTrezor)

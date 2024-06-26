@@ -41,7 +41,7 @@ namespace hw {
 
   namespace ledger {
 
-  #ifdef WITH_DEVICE_LEDGER
+  #if defined(WITH_DEVICE_LEDGER) || defined(HIDAPI_DUMMY)
 
     #undef MONERO_DEFAULT_LOG_CATEGORY
     #define MONERO_DEFAULT_LOG_CATEGORY "device.ledger"
@@ -299,7 +299,7 @@ namespace hw {
 
     device_ledger::device_ledger(): hw_device(0x0101, 0x05, 64, 2000) {
       this->id = device_id++;
-      this->reset_buffer();      
+      this->reset_buffer();
       this->mode = NONE;
       this->has_view_key = false;
       this->tx_in_progress = false;
@@ -533,7 +533,9 @@ namespace hw {
 
     bool device_ledger::connect(void) {
       this->disconnect();
+      #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))
       hw_device.connect(known_devices);
+      #endif
       this->reset();
       #ifdef DEBUG_HWDEVICE
       cryptonote::account_public_address pubkey;

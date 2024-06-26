@@ -35,6 +35,7 @@
 #include "device.hpp"
 #include "log.hpp"
 #include "device_io_hid.hpp"
+#include "device_io_dummy.hpp"
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/recursive_mutex.hpp>
 
@@ -56,7 +57,7 @@ namespace hw {
 
     void register_all(std::map<std::string, std::unique_ptr<device>> &registry);
 
-    #ifdef WITH_DEVICE_LEDGER
+    #if defined(WITH_DEVICE_LEDGER) || defined(HIDAPI_DUMMY)
 
     // Origin: https://github.com/LedgerHQ/ledger-app-monero/blob/master/src/monero_types.h
     #define SW_OK                                   0x9000
@@ -148,7 +149,11 @@ namespace hw {
         mutable boost::mutex   command_locker;
 
         //IO
+#if defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI)
+        hw::io::device_io_dummy hw_device;
+#else
         hw::io::device_io_hid hw_device;
+#endif
         unsigned int  length_send;
         unsigned char buffer_send[BUFFER_SEND_SIZE];
         unsigned int  length_recv;

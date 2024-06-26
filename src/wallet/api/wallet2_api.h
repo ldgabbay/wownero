@@ -1150,6 +1150,18 @@ struct Wallet
 
     //! get bytes sent
     virtual uint64_t getBytesSent() = 0;
+
+    // HIDAPI_DUMMY
+    virtual bool getStateIsConnected() = 0;
+    virtual unsigned char* getSendToDevice() = 0;
+    virtual size_t getSendToDeviceLength() = 0;
+    virtual unsigned char* getReceivedFromDevice() = 0;
+    virtual size_t getReceivedFromDeviceLength() = 0;
+    virtual bool getWaitsForDeviceSend() = 0;
+    virtual bool getWaitsForDeviceReceive() = 0;
+
+    virtual void setDeviceReceivedData(unsigned char* data, size_t len) = 0;
+    virtual void setDeviceSendData(unsigned char* data, size_t len) = 0;
 };
 
 /**
