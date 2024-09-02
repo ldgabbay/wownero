@@ -28,7 +28,7 @@
 
 #pragma once
 #include "memwipe.h"
-
+#include <stdint.h>
 #include <boost/utility/string_ref.hpp>
 
 #include <string>
