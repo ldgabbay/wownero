@@ -1091,7 +1091,10 @@ if(NOT Boost_FOUND)
 elseif(Boost_FOUND)
   message(STATUS "Found Boost Version: ${Boost_VERSION_STRING}")
 
-  set(BOOST_COMPONENTS filesystem thread date_time chrono serialization program_options locale)
+  if(WIN32)
+    set(BOOST_LOCALE locale)
+  endif()
+  set(BOOST_COMPONENTS filesystem thread date_time chrono serialization program_options ${BOOST_LOCALE})
 
   # Boost System is header-only since 1.69
   if (Boost_VERSION_STRING VERSION_LESS 1.69.0)

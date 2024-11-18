@@ -46,7 +46,9 @@
 #include <sstream>
 #include <unordered_map>
 
+#ifdef WIN32
 #include <boost/locale.hpp>
+#endif
 #include <boost/filesystem.hpp>
 #include "bc-ur/src/bc-ur.hpp"
 #if defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI)
