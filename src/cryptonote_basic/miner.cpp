@@ -45,7 +45,7 @@
 #include "boost/logic/tribool.hpp"
 #include <boost/filesystem.hpp>
 
-#ifdef __APPLE__
+#if defined(__APPLE__) && !defined(TARGET_OS_IPHONE)
   #include <sys/times.h>
   #include <IOKit/IOKitLib.h>
   #include <IOKit/ps/IOPSKeys.h>
@@ -973,7 +973,7 @@ namespace cryptonote
 
       return true;
 
-    #elif defined(__APPLE__)
+    #elif defined(__APPLE__) && !defined(TARGET_OS_IPHONE)
 
       mach_msg_type_number_t count;
       kern_return_t status;
@@ -1039,7 +1039,7 @@ namespace cryptonote
         return true;
       }
 
-    #elif (defined(__linux__) && defined(_SC_CLK_TCK)) || defined(__APPLE__) || defined(__FreeBSD__)
+    #elif (defined(__linux__) && defined(_SC_CLK_TCK)) || (defined(__APPLE__) && !defined(TARGET_OS_IPHONE)) || defined(__FreeBSD__)
 
       struct tms tms;
       if ( times(&tms) != (clock_t)-1 )
@@ -1068,7 +1068,7 @@ namespace cryptonote
         return boost::logic::tribool(power_status.ACLineStatus != 1);
     	}
 
-    #elif defined(__APPLE__) 
+    #elif defined(__APPLE__) && !defined(TARGET_OS_IPHONE)
       
       #if TARGET_OS_MAC && (!defined(MAC_OS_X_VERSION_MIN_REQUIRED) || MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_7)
         return boost::logic::tribool(IOPSGetTimeRemainingEstimate() != kIOPSTimeRemainingUnlimited);

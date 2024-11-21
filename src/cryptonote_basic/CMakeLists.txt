@@ -28,7 +28,11 @@
 
 if(APPLE)
   if(DEPENDS)
-    list(APPEND EXTRA_LIBRARIES "-framework Foundation -framework ApplicationServices -framework AppKit -framework IOKit")
+    if(${CMAKE_SYSTEM_NAME} STREQUAL "iOS")
+      list(APPEND EXTRA_LIBRARIES "-framework Foundation -framework IOKit")
+    else()
+      list(APPEND EXTRA_LIBRARIES "-framework Foundation -framework ApplicationServices -framework AppKit -framework IOKit")
+    endif()
   else()
     find_library(IOKIT_LIBRARY IOKit)
     mark_as_advanced(IOKIT_LIBRARY)
