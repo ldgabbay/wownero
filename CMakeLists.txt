@@ -71,7 +71,7 @@ if (${CMAKE_VERSION} VERSION_GREATER "3.0.0" AND CMAKE_MAKE_PROGRAM MATCHES "nin
     set(CMAKE_JOB_POOL_LINK link_job_pool)
   endif ()
 endif ()
-  
+
 option (USE_CLANG_TIDY_C   "Lint the code with clang-tidy - variant C"   OFF)
 option (USE_CLANG_TIDY_CXX "Lint the code with clang-tidy - variant C++" OFF)
 if (USE_CLANG_TIDY_C AND USE_CLANG_TIDY_CXX)
@@ -667,15 +667,10 @@ endfunction ()
 # Generate header for embedded translations
 # Generate header for embedded translations, use target toolchain if depends, otherwise use the
 # lrelease and lupdate binaries from the host
-include(ExternalProject)
-ExternalProject_Add(generate_translations_header
-  SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/translations"
-  BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/translations"
-  STAMP_DIR ${LRELEASE_PATH}
-  CMAKE_ARGS -DLRELEASE_PATH=${LRELEASE_PATH}
-  INSTALL_COMMAND ${CMAKE_COMMAND} -E echo "")
+add_subdirectory(translations)
 include_directories("${CMAKE_CURRENT_BINARY_DIR}/translations")
 add_subdirectory(external)
+
 
 # Final setup for libunbound
 include_directories(${UNBOUND_INCLUDE_DIR})
